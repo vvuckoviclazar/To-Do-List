@@ -5,35 +5,50 @@ const input = document.querySelector(".input");
 const taskList = document.querySelector(".taskList");
 const form = document.querySelector("form");
 
-function createTask() {
-  const inputText = document.createElement("li");
+function taskCreator() {
+  const createUniqueID = () => crypto.randomUUID();
 
-  const uniqueID = crypto.randomUUID();
-  inputText.id = uniqueID;
+  const createTaskElement = (id, taskText) => {
+    const inputText = document.createElement("li");
+    inputText.id = id;
+    inputText.classList.add("li");
+    inputText.innerHTML = getTaskText(taskText);
+    return inputText;
+  };
 
-  inputText.classList.add("li");
+  const getEmptyValue = () => {
+    return (input.value = "");
+  };
 
-  inputText.innerHTML = getTask(input.value);
+  return { createUniqueID, createTaskElement, getEmptyValue };
+}
 
-  taskList.appendChild(inputText);
+const task = taskCreator();
 
-  input.value = "";
+function getTask() {
+  const taskElement = task.createTaskElement(
+    task.createUniqueID(),
+    input.value
+  );
 
-  const removeBtn = inputText.querySelector(".removeBtn");
-  const checkBtn = inputText.querySelector(".checkBtn");
+  taskList.appendChild(taskElement);
+  task.getEmptyValue();
+
+  const removeBtn = taskElement.querySelector(".removeBtn");
+  const checkBtn = taskElement.querySelector(".checkBtn");
 
   removeBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    inputText.remove();
+    taskElement.remove();
   });
 
   checkBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    inputText.classList.toggle("crossed");
+    taskElement.classList.toggle("crossed");
   });
 }
 
-function getTask(text) {
+function getTaskText(text) {
   return `${text} <div class="checkDiv"><button class="checkBtn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="check">
   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
 </svg>
@@ -45,11 +60,9 @@ function getTask(text) {
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-
   if (input.value.trim() === "") {
     alert("Please enter a task!");
     return;
   }
-
-  createTask();
+  getTask();
 });

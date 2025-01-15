@@ -89,12 +89,14 @@ li {
   background-color: rgb(5, 182, 5);
   border: 1rem solid black;
   border-radius: 5rem;
+  font-size: 18rem;
 }
 
 .removeBtn {
   background-color: rgb(249, 39, 39);
   border: 1rem solid black;
   border-radius: 5rem;
+  font-size: 18rem;
 }
 
 .checkBtn:hover {

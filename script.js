@@ -5,34 +5,57 @@ const input = document.querySelector(".input");
 const taskList = document.querySelector(".taskList");
 const form = document.querySelector("form");
 
-function taskCreator() {
-  const createUniqueID = () => crypto.randomUUID();
+function todoCreator() {
+  let id = crypto.randomUUID();
 
-  const createTaskElement = (id, taskText) => {
-    const inputText = document.createElement("li");
-    inputText.id = id;
-    inputText.classList.add("li");
-    inputText.innerHTML = getTaskText(taskText);
-    return inputText;
+  const getRandomId = () => {
+    return id;
   };
 
   const getEmptyValue = () => {
     return (input.value = "");
   };
 
-  return { createUniqueID, createTaskElement, getEmptyValue };
+  return { getEmptyValue, getRandomId };
 }
 
-const task = taskCreator();
+function todoManager() {
+  let taskData = [];
+
+  const addTask = (taskElement) => {
+    taskData.push(taskElement);
+  };
+
+  const removeTask = (taskElement) => {
+    taskData = taskData.filter((task) => task !== taskElement);
+  };
+
+  function addTodo(todo) {
+    taskData.push(todo);
+  }
+
+  return { addTask, removeTask, taskData, addTodo };
+}
+
+const creator = todoCreator();
+const manager = todoManager();
+
+function createTaskElement(id, taskText) {
+  const inputText = document.createElement("li");
+  inputText.id = id;
+  inputText.classList.add("li");
+  inputText.innerHTML = getTaskText(taskText);
+  return inputText;
+}
 
 function getTask() {
-  const taskElement = task.createTaskElement(
-    task.createUniqueID(),
-    input.value
-  );
+  const taskElement = createTaskElement(creator.getRandomId(), input.value);
+
+  manager.addTask(taskElement);
 
   taskList.appendChild(taskElement);
-  task.getEmptyValue();
+
+  creator.getEmptyValue();
 
   const removeBtn = taskElement.querySelector(".removeBtn");
   const checkBtn = taskElement.querySelector(".checkBtn");
@@ -40,6 +63,8 @@ function getTask() {
   removeBtn.addEventListener("click", (e) => {
     e.preventDefault();
     taskElement.remove();
+
+    manager.removeTask(taskElement);
   });
 
   checkBtn.addEventListener("click", (e) => {

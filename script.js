@@ -14,6 +14,7 @@ input.addEventListener("input", (e) => {
 function todoCreator(textInput) {
   let id = crypto.randomUUID();
   let text = textInput;
+  let isChecked = false;
 
   const getText = () => {
     return text;
@@ -23,7 +24,16 @@ function todoCreator(textInput) {
     return id;
   };
 
-  return { getId, getText };
+  const switchIsChecked = () => {
+    isChecked = !isChecked;
+    return isChecked;
+  };
+
+  const getIsChecked = () => {
+    return isChecked;
+  };
+
+  return { getId, getText, switchIsChecked, getIsChecked };
 }
 
 function todoManager() {
@@ -48,9 +58,20 @@ function todoManager() {
   return { addTask, taskData, addTodo, setTasks, getTasks };
 }
 
-//filterocati na osnovu ID-a
-function removeTask(taskElement) {
-  taskData = taskData.filter((task) => task !== taskElement);
+function removeTask(id) {
+  const updatedTasks = manager.getTasks().filter((task) => task.getId() !== id);
+  manager.setTasks(updatedTasks);
+}
+
+function toggleTaskState(taskId, taskElement) {
+  const task = manager.getTasks().find((task) => task.getId() === taskId);
+  if (!task) return;
+
+  task.switchIsChecked();
+
+  task.getIsChecked()
+    ? taskElement.classList.add("crossed")
+    : taskElement.classList.remove("crossed");
 }
 
 const creator = todoCreator();
@@ -70,24 +91,21 @@ function createTaskElement(id, text) {
   return inputText;
 }
 
-function getTask() {
-  const removeBtn = document.querySelector(".removeBtn");
-  const checkBtn = document.querySelector(".checkBtn");
+function getTask(taskElement) {
+  const removeBtn = taskElement.querySelector(".removeBtn");
+  const checkBtn = taskElement.querySelector(".checkBtn");
 
   removeBtn.addEventListener("click", (e) => {
     e.preventDefault();
     taskElement.remove();
-    manager.removeTask(taskElement);
+    const taskId = taskElement.id;
+    removeTask(taskId);
   });
 
   checkBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    taskElement.classList.toggle("crossed");
+    toggleTaskState(taskElement.id, taskElement);
   });
-}
-
-function getTaskText(text) {
-  return;
 }
 
 form.addEventListener("submit", (e) => {
@@ -105,7 +123,7 @@ form.addEventListener("submit", (e) => {
   manager.getTasks().forEach((task) => {
     const taskElement = createTaskElement(task.getId(), task.getText());
     taskList.appendChild(taskElement);
+    getTask(taskElement);
   });
-  console.log(manager.getTasks());
-  getTask();
+  input.value = "";
 });
